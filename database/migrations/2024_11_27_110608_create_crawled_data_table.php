@@ -19,6 +19,8 @@ class CreateCrawledDataTable extends Migration
             $table->json('links')->nullable(); // Links as JSON
             $table->json('headings')->nullable(); // Headings as JSON
             $table->json('paragraphs')->nullable(); // Paragraphs as JSON
+            $table->text('images')->nullable();
+            $table->text('videos')->nullable();
             $table->timestamps();
         });
     }

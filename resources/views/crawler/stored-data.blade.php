@@ -17,36 +17,56 @@
             <th>Links</th>
             <th>Headings</th>
             <th>Paragraphs</th>
+            <th>Images</th>
+            <th>Videos</th>
         </tr>
         </thead>
         <tbody>
-        @foreach ($data as $item)
+        @forelse ($data as $item)
             <tr>
                 <td>{{ $item->id }}</td>
                 <td>{{ $item->url }}</td>
                 <td>
                     <ul>
-                        @foreach ($item->links as $link)
+                        @foreach (json_decode($item->links, true) as $link)
                             <li>{{ $link }}</li>
                         @endforeach
                     </ul>
                 </td>
                 <td>
                     <ul>
-                        @foreach ($item->headings as $heading)
+                        @foreach (json_decode($item->headings, true) as $heading)
                             <li>{{ $heading }}</li>
                         @endforeach
                     </ul>
                 </td>
                 <td>
                     <ul>
-                        @foreach ($item->paragraphs as $paragraph)
+                        @foreach (json_decode($item->paragraphs, true) as $paragraph)
                             <li>{{ $paragraph }}</li>
                         @endforeach
                     </ul>
                 </td>
+                <td>
+                    <ul>
+                        @foreach (json_decode($item->images, true) as $image)
+                            <li><a href="{{ $image }}" target="_blank">{{ $image }}</a></li>
+                        @endforeach
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        @foreach (json_decode($item->videos, true) as $video)
+                            <li><a href="{{ $video }}" target="_blank">{{ $video }}</a></li>
+                        @endforeach
+                    </ul>
+                </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="7" class="text-center">No data found.</td>
+            </tr>
+        @endforelse
         </tbody>
     </table>
 </div>

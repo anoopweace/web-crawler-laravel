@@ -11,12 +11,14 @@ class CrawledData extends Model
 
     protected $table = 'crawled_data';
 
-    protected $fillable = ['url', 'links', 'headings', 'paragraphs'];
+    protected $fillable = ['url', 'links', 'headings', 'paragraphs','images','videos'];
 
     // Cast JSON fields to arrays
     protected $casts = [
         'links' => 'array',
         'headings' => 'array',
         'paragraphs' => 'array',
+        'images' => 'array',
+        'videos' => 'array',
     ];
 }
