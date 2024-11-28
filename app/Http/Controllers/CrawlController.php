@@ -29,32 +29,48 @@ class CrawlController extends Controller
             // Request the target page
             $crawler = $client->request('GET', $url);
 
-            // Extract links
-            $links = $crawler->filter('a')->each(function ($node) {
-                return $node->attr('href');
-            });
-
-            // Extract headings
-            $headings = $crawler->filter('h1, h2, h3, h4, h5, h6')->each(function ($node) {
-                return $node->text();
-            });
-
-            // Extract paragraphs
-            $paragraphs = $crawler->filter('p')->each(function ($node) {
-                return $node->text();
-            });
-
-            // Extract images
             $images = $crawler->filter('img')->each(function ($node) use ($url) {
                 $src = $node->attr('src') ?: $node->attr('data-src') ?: $node->attr('data-original');
                 return $this->makeAbsoluteUrl($src, $url);
             });
-    
-            // Extract video URLs
-            $videos = $crawler->filter('video source')->each(function ($node) use ($url) {
-                $src = $node->attr('src') ?: $node->attr('data-src') ?: $node->attr('data-original');
-                return $this->makeAbsoluteUrl($src, $url);
+
+            // Extract links
+            $blogs = $crawler->filter('article')->each(function ($node) {
+                return [
+                    'title' => $node->filter('h2')->count() > 0 ? $node->filter('h2')->text() : 'No Title', // Handle missing titles
+                    'content' => $node->filter('p')->count() > 0 ? $node->filter('p')->text() : 'No Content', // Handle missing content
+                    'image' => $node->filter('img')->count() > 0 ? $node->filter('img')->attr('src') : null, // Extract the image src if it exists
+                    'video' => $node->filter('video')->count() > 0 ? $node->filter('video')->attr('src') : null, // Extract the video src if it exists
+                    'link' => $node->filter('h2 a')->count() > 0 ? $node->filter('h2 a')->attr('href') : null, // Get href only for <a> in <h2>
+                    
+                ];
             });
+            
+
+            // // Extract headings
+            // $headings = $crawler->filter('h1, h2, h3, h4, h5, h6')->each(function ($node) {
+            //     return $node->text();
+            // });
+
+            // // Extract paragraphs
+            // $paragraphs = $crawler->filter('p')->each(function ($node) {
+            //     return $node->text();
+            // });
+            // // $anctor = $crawler->filter('a')->each(function ($node) {
+            // //     return $node->text();
+            // // });
+
+            // // Extract images
+            // $images = $crawler->filter('img')->each(function ($node) use ($url) {
+            //     $src = $node->attr('src') ?: $node->attr('data-src') ?: $node->attr('data-original');
+            //     return $this->makeAbsoluteUrl($src, $url);
+            // });
+    
+            // // Extract video URLs
+            // $videos = $crawler->filter('video source')->each(function ($node) use ($url) {
+            //     $src = $node->attr('src') ?: $node->attr('data-src') ?: $node->attr('data-original');
+            //     return $this->makeAbsoluteUrl($src, $url);
+            // });
 
             // Convert relative URLs to absolute
             // $media = collect(array_merge($images, $videos))->map(function ($link) use ($url) {
@@ -62,14 +78,14 @@ class CrawlController extends Controller
             // })->toArray();
 
             // Serialize the extracted data to store in the database
-            CrawledData::create([
-                'url' => $url,
-                'links' => json_encode($links),
-                'headings' => json_encode($headings),
-                'paragraphs' => json_encode($paragraphs),
-                'images' => json_encode($images),
-                'videos' => json_encode($videos),
-            ]);
+            // CrawledData::create([
+            //     'url' => $url,
+            //     'links' => json_encode($links),
+            //     'headings' => json_encode($headings),
+            //     'paragraphs' => json_encode($paragraphs),
+            //     'images' => json_encode($images),
+            //     'videos' => json_encode($videos),
+            // ]);
 
             // Retrieve the stored data
             $data = CrawledData::where('url', $url)->get();
@@ -78,11 +94,12 @@ class CrawlController extends Controller
             // return view('crawler.stored-data', compact('data'));
             return response()->json([
                 'status' => 'success',
-                'links' => $links,
-                'headings' => $headings,
-                'paragraphs' => $paragraphs,
-                'images' => $images,
-                'videos' => $videos,
+                'blogs' => $blogs,
+                // 'headings' => $headings,
+                // 'paragraphs' => $paragraphs,
+                // 'images' => $images,
+                // 'videos' => $videos,
+                // 'anctor' => $anctor,
             ]);
         } catch (\Exception $e) {
             // Handle errors

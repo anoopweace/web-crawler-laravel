@@ -14,21 +14,24 @@ class WebCrawler
         $this->client = new Client();
     }
 
+    // URL ko crawl karte hue, har blog ka data extract karna
     public function crawl($url)
     {
         $this->crawler = $this->client->request('GET', $url);
-
-        // Yahan aap website ka HTML structure dekh kar appropriate selector use karenge
-        // Example: Agar blog posts ko <article> tags me wrap kiya gaya hai
-        $blogs = $this->crawler->filter('article')->each(function ($node) {
-            return [
-                'title' => $node->filter('h2')->text(), // Blog ka title
-                'content' => $node->filter('p')->text(), // Blog ka content
-                'image' => $node->filter('img')->attr('src'), // Image URL
-                'video' => $node->filter('video')->attr('src'), // Video URL
-            ];
-        });
-
+        // dd($this->crawler->node);
+        // Har blog ko filter karte hue data extract karna
+        if ($this->crawler->filter('article')->count() > 0) {
+            $blogs = $this->crawler->filter('article')->each(function ($node) {
+                return [
+                    'title' => $node->filter('h2')->text(),
+                    'content' => $node->filter('p')->text(),
+                    'image' => $node->filter('img')->attr('src'),
+                    'video' => $node->filter('video')->attr('src'),
+                ];
+            });
+        } else {
+            dd('No articles found!');
+        }
         return $blogs;
     }
 }
